@@ -9,15 +9,23 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+
+	"github.com/chrisvaughn/coffeetracker/pkg/storage"
 )
 
 type Service struct {
-	Router *chi.Mux
+	Router  *chi.Mux
+	storage *storage.Storage
 }
 
 func NewService() (*Service, error) {
+	storage, err := storage.NewStorage()
+	if err != nil {
+		return nil, err
+	}
 	svc := Service{
-		Router: chi.NewRouter(),
+		Router:  chi.NewRouter(),
+		storage: storage,
 	}
 	return &svc, nil
 }
@@ -33,12 +41,12 @@ func (s *Service) SetupRoutes() {
 	FileServer(s.Router, "/", filesDir)
 
 	s.Router.Route("/api", func(r chi.Router) {
-		r.Get("/coffees", s.dummyHandler)
-		r.Post("/coffees", s.dummyHandler)
+		r.Get("/coffees", s.getCoffees)
+		r.Post("/coffees", s.postCoffees)
 
-		r.Get("/coffees/{coffeeID}", s.dummyHandler)
-		r.Put("/coffees/{coffeeID}", s.dummyHandler)
-		r.Delete("/coffees/{coffeeID}", s.dummyHandler)
+		r.Get("/coffees/{coffeeID:[0-9]+}", s.getCoffee)
+		r.Put("/coffees/{coffeeID:[0-9]+}", s.dummyHandler)
+		r.Delete("/coffees/{coffeeID:[0-9]+}", s.dummyHandler)
 	})
 }
 
