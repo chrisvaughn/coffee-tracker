@@ -1,14 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/chrisvaughn/coffeetracker/pkg/coffeetracker"
 )
 
 func main() {
-	http.HandleFunc("/", indexHandler)
+
+	service, err := coffeetracker.NewService()
+	if err != nil {
+		log.Fatal(err)
+	}
+	service.SetupRoutes()
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -17,15 +23,7 @@ func main() {
 	}
 
 	log.Printf("Listening on port %s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, service.Router); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-	fmt.Fprint(w, "Hello, Coffee!")
 }
