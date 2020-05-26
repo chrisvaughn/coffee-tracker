@@ -12,7 +12,7 @@ import (
 
 func (s *Service) getCoffees(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	coffees, err := s.storage.GetCoffees(ctx)
+	coffees, err := s.storage.GetCoffeesByUser(ctx, 1)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
@@ -34,7 +34,7 @@ func (s *Service) postCoffees(w http.ResponseWriter, r *http.Request) {
 	coffee.Added = time.Now()
 	fmt.Println(coffee.Name)
 
-	err = s.storage.CreateCoffee(ctx, &coffee)
+	err = s.storage.CreateCoffee(ctx, &coffee, 1)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
