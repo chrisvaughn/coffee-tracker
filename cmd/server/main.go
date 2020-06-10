@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/pseidemann/finish"
+
 	"github.com/chrisvaughn/coffeetracker/pkg/coffeetracker"
 )
 
@@ -23,7 +25,21 @@ func main() {
 	}
 
 	log.Printf("Listening on port %s", port)
-	if err := http.ListenAndServe(":"+port, service.Router); err != nil {
-		log.Fatal(err)
+
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: service.Router,
 	}
+
+	fin := finish.New()
+	fin.Add(srv)
+
+	go func() {
+		err := srv.ListenAndServe()
+		if err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+
+	fin.Wait()
 }

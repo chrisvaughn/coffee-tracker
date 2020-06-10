@@ -1,3 +1,12 @@
 runtime: go113
 
-main: github.com/chrisvaughn/coffeetracker/cmd/server
+main: ./cmd/server
+
+handlers:
+  - url: /api/.*
+    script: auto
+    secure: always
+
+# include env.yaml based on what's in README
+includes:
+  - env.yaml

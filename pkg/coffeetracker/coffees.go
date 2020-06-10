@@ -12,12 +12,13 @@ import (
 
 func (s *Service) getCoffees(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	fmt.Printf("%v\n", ctx.Value(AuthContextUserID))
 	coffees, err := s.storage.GetCoffeesByUser(ctx, 1)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
 	b, _ := json.Marshal(coffees)
-	w.Write(b)
+	_, _ = w.Write(b)
 }
 
 func (s *Service) postCoffees(w http.ResponseWriter, r *http.Request) {

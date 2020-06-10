@@ -12,5 +12,5 @@ func ErrorResponse(w http.ResponseWriter, error string, code int) {
 		"error": error,
 	}
 	b, _ := json.Marshal(resp)
-	w.Write(b)
+	_, _ = w.Write(b)
 }
