@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 
 	"github.com/chrisvaughn/coffeetracker/pkg/storage"
 )
@@ -31,6 +32,16 @@ func NewService() (*Service, error) {
 }
 
 func (s *Service) SetupRoutes() {
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+	s.Router.Use(cors.Handler)
+
 	s.Router.Use(middleware.RequestID)
 	s.Router.Use(middleware.RealIP)
 	s.Router.Use(middleware.Logger)
@@ -41,6 +52,8 @@ func (s *Service) SetupRoutes() {
 	FileServer(s.Router, "/", filesDir)
 
 	s.Router.Route("/api", func(r chi.Router) {
+		r.Use(AuthMiddleware().Handler)
+		r.Use(GetUserID)
 		r.Get("/coffees", s.getCoffees)
 		r.Post("/coffees", s.postCoffees)
 

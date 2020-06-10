@@ -25,5 +25,5 @@ func (s *Service) getCoffee(w http.ResponseWriter, r *http.Request) {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
 	b, _ := json.Marshal(coffee)
-	w.Write(b)
+	_, _ = w.Write(b)
 }
