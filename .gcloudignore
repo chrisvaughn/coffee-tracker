@@ -25,3 +25,8 @@
 *.out
 
 .envrc
+
+# react src and modules
+frontend/mode_modules
+frontend/public
+frontend/src
