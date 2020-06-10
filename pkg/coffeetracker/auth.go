@@ -13,7 +13,10 @@ import (
 
 type AuthContextKey int
 
-const AuthContextUserID AuthContextKey = iota
+const (
+	AuthContextUserID AuthContextKey = iota
+	AuthContextUser
+)
 
 type Response struct {
 	Message string `json:"message"`
