@@ -2,8 +2,10 @@ package coffeetracker
 
 import (
 	"context"
+	"crypto/rsa"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -22,10 +24,10 @@ type Response struct {
 }
 
 type Jwks struct {
-	Keys []JSONWebKeys `json:"keys"`
+	Keys []JSONWebKey `json:"keys"`
 }
 
-type JSONWebKeys struct {
+type JSONWebKey struct {
 	Kty string   `json:"kty"`
 	Kid string   `json:"kid"`
 	Use string   `json:"use"`
@@ -37,6 +39,12 @@ type JSONWebKeys struct {
 type CustomClaims struct {
 	Scope string `json:"scope"`
 	jwt.StandardClaims
+}
+
+var publicKeyCache map[string]*rsa.PublicKey
+
+func init() {
+	publicKeyCache = make(map[string]*rsa.PublicKey)
 }
 
 func AuthMiddleware() *jwtmiddleware.JWTMiddleware {
@@ -55,46 +63,49 @@ func AuthMiddleware() *jwtmiddleware.JWTMiddleware {
 				return token, errors.New("invalid issuer")
 			}
 
-			cert, err := getPemCert(token)
+			publicKey, err := getPublicKey(token)
 			if err != nil {
 				panic(err.Error())
 			}
 
-			result, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
-			return result, nil
+			return publicKey, nil
 		},
 		SigningMethod: jwt.SigningMethodRS256,
 	})
 }
 
-func getPemCert(token *jwt.Token) (string, error) {
-	cert := ""
-	resp, err := http.Get(os.Getenv("AUTH0_ISS") + ".well-known/jwks.json")
+func getPublicKey(token *jwt.Token) (*rsa.PublicKey, error) {
 
+	if publicKey, ok := publicKeyCache[token.Header["kid"].(string)]; ok {
+		return publicKey, nil
+	}
+
+	resp, err := http.Get(os.Getenv("AUTH0_ISS") + ".well-known/jwks.json")
 	if err != nil {
-		return cert, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var jwks = Jwks{}
 	err = json.NewDecoder(resp.Body).Decode(&jwks)
-
 	if err != nil {
-		return cert, err
+		return nil, err
 	}
 
-	for k := range jwks.Keys {
-		if token.Header["kid"] == jwks.Keys[k].Kid {
-			cert = "-----BEGIN CERTIFICATE-----\n" + jwks.Keys[k].X5c[0] + "\n-----END CERTIFICATE-----"
+	for _, key := range jwks.Keys {
+		cert := "-----BEGIN CERTIFICATE-----\n" + key.X5c[0] + "\n-----END CERTIFICATE-----"
+		publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
+		if err != nil {
+			return nil, err
 		}
+		publicKeyCache[key.Kid] = publicKey
 	}
 
-	if cert == "" {
-		err := errors.New("unable to find appropriate key")
-		return cert, err
+	if publicKey, ok := publicKeyCache[token.Header["kid"].(string)]; ok {
+		return publicKey, nil
 	}
+	return nil, fmt.Errorf("jwk for kid not found")
 
-	return cert, nil
 }
 
 func GetUserID(h http.Handler) http.Handler {
@@ -111,7 +122,7 @@ func GetUserID(h http.Handler) http.Handler {
 
 //func checkScope(scope string, tokenString string) bool {
 //	token, _ := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-//		cert, err := getPemCert(token)
+//		cert, err := getPublicKey(token)
 //		if err != nil {
 //			return nil, err
 //		}

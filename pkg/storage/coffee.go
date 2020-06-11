@@ -10,34 +10,25 @@ import (
 type Coffee struct {
 	Name  string
 	Added time.Time
+	Key   *datastore.Key `datastore:"__key__"`
 }
 
-type CoffeeWithID struct {
-	*Coffee
-	ID int64
-}
-
-func (s *Storage) GetCoffee(context context.Context, coffeeID int64, userKey *datastore.Key) (*Coffee, error) {
+func (s *Storage) GetCoffee(context context.Context, coffeeID int64, user *User) (*Coffee, error) {
 	coffee := &Coffee{}
-	key := datastore.IDKey("Coffee", coffeeID, userKey)
+	key := datastore.IDKey("Coffee", coffeeID, user.Key)
 	err := s.client.Get(context, key, coffee)
 	return coffee, err
 }
 
-func (s *Storage) GetCoffeesByUser(context context.Context, userKey *datastore.Key) ([]*CoffeeWithID, error) {
+func (s *Storage) GetCoffeesByUser(context context.Context, user *User) ([]*Coffee, error) {
 	var coffees []*Coffee
-	qry := datastore.NewQuery("Coffee").Ancestor(userKey)
-	keys, err := s.client.GetAll(context, qry, &coffees)
-
-	var coffeesWithID []*CoffeeWithID
-	for i, key := range keys {
-		coffeesWithID = append(coffeesWithID, &CoffeeWithID{coffees[i], key.ID})
-	}
-	return coffeesWithID, err
+	qry := datastore.NewQuery("Coffee").Ancestor(user.Key)
+	_, err := s.client.GetAll(context, qry, &coffees)
+	return coffees, err
 }
 
-func (s *Storage) CreateCoffee(context context.Context, c *Coffee, userKey *datastore.Key) error {
-	newKey := datastore.IncompleteKey("Coffee", userKey)
+func (s *Storage) CreateCoffee(context context.Context, c *Coffee, user *User) error {
+	newKey := datastore.IncompleteKey("Coffee", user.Key)
 	_, err := s.client.Put(context, newKey, c)
 	return err
 }

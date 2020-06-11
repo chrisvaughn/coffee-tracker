@@ -4,40 +4,43 @@ import (
 	"context"
 
 	"cloud.google.com/go/datastore"
-	"google.golang.org/api/iterator"
 )
 
 type User struct {
 	Auth0ID string
+	Key     *datastore.Key `datastore:"__key__"`
 }
 
-func (s *Storage) GetOrCreateUser(context context.Context, auth0ID string) (*datastore.Key, *User, error) {
-	key, user, err := s.GetUserFromAuth0ID(context, auth0ID)
-	if err != nil && err != iterator.Done {
-		return nil, nil, err
+func (s *Storage) GetOrCreateUser(context context.Context, auth0ID string) (*User, error) {
+	user, err := s.GetUserFromAuth0ID(context, auth0ID)
+	if err != nil {
+		return nil, err
 	}
-	if key != nil && user != nil {
-		return key, user, nil
+	if user != nil {
+		return user, nil
 	}
 	user = &User{
 		Auth0ID: auth0ID,
 	}
-	key, err = s.CreateUser(context, user)
+	err = s.CreateUser(context, user)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return key, user, nil
+	return user, nil
 }
 
-func (s *Storage) GetUserFromAuth0ID(context context.Context, auth0ID string) (*datastore.Key, *User, error) {
-	user := &User{}
+func (s *Storage) GetUserFromAuth0ID(context context.Context, auth0ID string) (*User, error) {
+	var users []*User
 	query := datastore.NewQuery("User").Filter("Auth0ID =", auth0ID).Limit(1)
-	it := s.client.Run(context, query)
-	key, err := it.Next(user)
-	return key, user, err
+	_, err := s.client.GetAll(context, query, &users)
+	if len(users) == 1 {
+		return users[0], err
+	}
+	return nil, err
 }
 
-func (s *Storage) CreateUser(context context.Context, u *User) (*datastore.Key, error) {
+func (s *Storage) CreateUser(context context.Context, u *User) error {
 	newKey := datastore.IncompleteKey("User", nil)
-	return s.client.Put(context, newKey, u)
+	_, err := s.client.Put(context, newKey, u)
+	return err
 }

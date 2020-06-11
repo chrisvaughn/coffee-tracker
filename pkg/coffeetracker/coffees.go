@@ -16,12 +16,15 @@ func (s *Service) getCoffees(w http.ResponseWriter, r *http.Request) {
 	if auth0UserID == "" {
 		httputils.ErrorResponse(w, "did not get user id", 500)
 	}
-	fmt.Printf("%s\n", auth0UserID)
-	key, _, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
+	fmt.Printf("Auth0UserID From Context %s\n", auth0UserID)
+	user, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
-	coffees, err := s.storage.GetCoffeesByUser(ctx, key)
+	if user == nil {
+		httputils.ErrorResponse(w, "could not get user", 500)
+	}
+	coffees, err := s.storage.GetCoffeesByUser(ctx, user)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
@@ -37,11 +40,13 @@ func (s *Service) postCoffees(w http.ResponseWriter, r *http.Request) {
 		httputils.ErrorResponse(w, "did not get user id", 500)
 	}
 	fmt.Printf("%s\n", auth0UserID)
-	key, _, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
+	user, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
-
+	if user == nil {
+		httputils.ErrorResponse(w, "could not get user", 500)
+	}
 	decoder := json.NewDecoder(r.Body)
 
 	var coffee storage.Coffee
@@ -53,7 +58,7 @@ func (s *Service) postCoffees(w http.ResponseWriter, r *http.Request) {
 	coffee.Added = time.Now()
 	fmt.Println(coffee.Name)
 
-	err = s.storage.CreateCoffee(ctx, &coffee, key)
+	err = s.storage.CreateCoffee(ctx, &coffee, user)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
