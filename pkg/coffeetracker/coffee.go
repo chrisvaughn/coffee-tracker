@@ -2,6 +2,7 @@ package coffeetracker
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,11 +17,21 @@ func (s *Service) getCoffee(w http.ResponseWriter, r *http.Request) {
 	coffeeStr := chi.URLParam(r, "coffeeID")
 	coffeeID, err := strconv.ParseInt(coffeeStr, 10, 64)
 	if err != nil {
-		httputils.ErrorResponse(w, "invalid user_id", http.StatusBadRequest)
+		httputils.ErrorResponse(w, "invalid coffee_id", http.StatusBadRequest)
 		return
 	}
 
-	coffee, err := s.storage.GetCoffee(ctx, coffeeID, 1)
+	auth0UserID := ctx.Value(AuthContextUserID).(string)
+	if auth0UserID == "" {
+		httputils.ErrorResponse(w, "did not get user id", 500)
+	}
+	fmt.Printf("%s\n", auth0UserID)
+	key, _, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
+	if err != nil {
+		httputils.ErrorResponse(w, err.Error(), 500)
+	}
+
+	coffee, err := s.storage.GetCoffee(ctx, coffeeID, key)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}

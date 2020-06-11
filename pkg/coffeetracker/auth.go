@@ -15,7 +15,6 @@ type AuthContextKey int
 
 const (
 	AuthContextUserID AuthContextKey = iota
-	AuthContextUser
 )
 
 type Response struct {
