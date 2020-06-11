@@ -12,6 +12,10 @@ export GOOGLE_CLOUD_PROJECT=XXXXXXXXXXXXX
 # configuration parameters from you Auth0 app
 export AUTH0_AUD=XXXXXXXXXXXXXX
 export AUTH0_ISS=XXXXXXXXXXXXXX
+
+# react vars
+export REACT_APP_API_DOMAIN_PROD=<GAE PROJECT BASE URL>
+export REACT_APP_API_DOMAIN_DEV=http://localhost:8080
 ```
 
 Links:

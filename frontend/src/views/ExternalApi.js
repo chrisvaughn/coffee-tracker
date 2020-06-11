@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useAuth0 } from "../react-auth0-spa";
 
+const apiUrl = process.env.NODE_ENV === 'production' ? process.env.REACT_APP_API_DOMAIN_PROD : process.env.REACT_APP_API_DOMAIN_DEV;
+
 const ExternalApi = () => {
     const [showResult, setShowResult] = useState(false);
     const [apiMessage, setApiMessage] = useState("");
@@ -10,7 +12,7 @@ const ExternalApi = () => {
         try {
             const token = await getTokenSilently();
 
-            const response = await fetch("http://localhost:8080/api/coffees", {
+            const response = await fetch(apiUrl + "/api/coffees", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
