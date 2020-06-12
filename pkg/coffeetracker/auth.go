@@ -10,13 +10,14 @@ import (
 	"os"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
+	"github.com/chrisvaughn/coffeetracker/pkg/httputils"
 	"github.com/dgrijalva/jwt-go"
 )
 
 type AuthContextKey int
 
 const (
-	AuthContextUserID AuthContextKey = iota
+	AuthContextUser AuthContextKey = iota
 )
 
 type Response struct {
@@ -108,12 +109,17 @@ func getPublicKey(token *jwt.Token) (*rsa.PublicKey, error) {
 
 }
 
-func GetUserID(h http.Handler) http.Handler {
+func (s *Service) GetUserMiddleware(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		token := ctx.Value("user").(*jwt.Token)
-		if sub, ok := token.Claims.(jwt.MapClaims)["sub"]; ok {
-			r = r.WithContext(context.WithValue(ctx, AuthContextUserID, sub))
+		if sub, ok := token.Claims.(jwt.MapClaims)["sub"].(string); ok {
+			fmt.Printf("%s\n", sub)
+			user, err := s.storage.GetOrCreateUser(ctx, sub)
+			if err != nil {
+				httputils.ErrorResponse(w, err.Error(), 500)
+			}
+			r = r.WithContext(context.WithValue(ctx, AuthContextUser, user))
 		}
 		h.ServeHTTP(w, r)
 	}

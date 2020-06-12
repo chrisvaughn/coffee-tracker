@@ -18,6 +18,24 @@ export REACT_APP_API_DOMAIN_PROD=<GAE PROJECT BASE URL>
 export REACT_APP_API_DOMAIN_DEV=http://localhost:8080
 ```
 
+Running:
+
+in one terminal run the datastore
+```
+gcloud beta emulators datastore start
+```
+
+in another terminal
+```
+$(gcloud beta emulators datastore env-init)
+go run cmd/server/main.go
+```
+in a 3rd terminal run the frontend
+```
+cd frontend
+yarn start
+```
+
 Links:
 
 * https://www.freecodecamp.org/news/how-to-build-a-web-app-with-go-gin-and-react-cffdc473576/

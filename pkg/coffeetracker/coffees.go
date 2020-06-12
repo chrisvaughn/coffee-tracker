@@ -12,18 +12,11 @@ import (
 
 func (s *Service) getCoffees(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	auth0UserID := ctx.Value(AuthContextUserID).(string)
-	if auth0UserID == "" {
-		httputils.ErrorResponse(w, "did not get user id", 500)
-	}
-	fmt.Printf("Auth0UserID From Context %s\n", auth0UserID)
-	user, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
-	if err != nil {
-		httputils.ErrorResponse(w, err.Error(), 500)
-	}
+	user := ctx.Value(AuthContextUser).(*storage.User)
 	if user == nil {
-		httputils.ErrorResponse(w, "could not get user", 500)
+		httputils.ErrorResponse(w, "did not get user", 500)
 	}
+
 	coffees, err := s.storage.GetCoffeesByUser(ctx, user)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
@@ -35,22 +28,15 @@ func (s *Service) getCoffees(w http.ResponseWriter, r *http.Request) {
 func (s *Service) postCoffees(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	auth0UserID := ctx.Value(AuthContextUserID).(string)
-	if auth0UserID == "" {
-		httputils.ErrorResponse(w, "did not get user id", 500)
-	}
-	fmt.Printf("%s\n", auth0UserID)
-	user, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
-	if err != nil {
-		httputils.ErrorResponse(w, err.Error(), 500)
-	}
+	user := ctx.Value(AuthContextUser).(*storage.User)
 	if user == nil {
-		httputils.ErrorResponse(w, "could not get user", 500)
+		httputils.ErrorResponse(w, "did not get user", 500)
 	}
+
 	decoder := json.NewDecoder(r.Body)
 
 	var coffee storage.Coffee
-	err = decoder.Decode(&coffee)
+	err := decoder.Decode(&coffee)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 400)
 	}
@@ -62,4 +48,5 @@ func (s *Service) postCoffees(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}
+	w.WriteHeader(201)
 }

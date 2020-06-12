@@ -2,13 +2,13 @@ package coffeetracker
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi"
 
 	"github.com/chrisvaughn/coffeetracker/pkg/httputils"
+	"github.com/chrisvaughn/coffeetracker/pkg/storage"
 )
 
 func (s *Service) getCoffee(w http.ResponseWriter, r *http.Request) {
@@ -21,14 +21,9 @@ func (s *Service) getCoffee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auth0UserID := ctx.Value(AuthContextUserID).(string)
-	if auth0UserID == "" {
-		httputils.ErrorResponse(w, "did not get user id", 500)
-	}
-	fmt.Printf("%s\n", auth0UserID)
-	user, err := s.storage.GetOrCreateUser(ctx, auth0UserID)
-	if err != nil {
-		httputils.ErrorResponse(w, err.Error(), 500)
+	user := ctx.Value(AuthContextUser).(*storage.User)
+	if user == nil {
+		httputils.ErrorResponse(w, "did not get user", 500)
 	}
 
 	coffee, err := s.storage.GetCoffee(ctx, coffeeID, user)

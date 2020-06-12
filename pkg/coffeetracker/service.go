@@ -53,7 +53,8 @@ func (s *Service) SetupRoutes() {
 
 	s.Router.Route("/api", func(r chi.Router) {
 		r.Use(AuthMiddleware().Handler)
-		r.Use(GetUserID)
+		r.Use(s.GetUserMiddleware)
+
 		r.Get("/coffees", s.getCoffees)
 		r.Post("/coffees", s.postCoffees)
 
