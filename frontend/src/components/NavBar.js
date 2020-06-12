@@ -16,9 +16,10 @@ const NavBar = () => {
             {/* NEW - add a link to the home and profile pages */}
             {isAuthenticated && (
                 <span>
+                    &nbsp;
                     <Link to="/">Home</Link>&nbsp;
-                    <Link to="/profile">Profile</Link>
-                    <Link to="/external-api">External API</Link>
+                    <Link to="/profile">Profile</Link>&nbsp;
+                    <Link to="/external-api">External API</Link>&nbsp;
                 </span>
             )}
         </div>
