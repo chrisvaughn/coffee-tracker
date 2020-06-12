@@ -2,9 +2,10 @@ package storage
 
 import (
 	"context"
-	"os"
 
 	"cloud.google.com/go/datastore"
+
+	"github.com/chrisvaughn/coffeetracker/pkg/configuration"
 )
 
 type Storage struct {
@@ -14,7 +15,9 @@ type Storage struct {
 func NewStorage() (*Storage, error) {
 	ctx := context.Background()
 
-	client, err := datastore.NewClient(ctx, os.Getenv("GOOGLE_CLOUD_PROJECT"))
+	cfg := configuration.GetConfiguration()
+
+	client, err := datastore.NewClient(ctx, cfg.GoogleCloudProject)
 	if err != nil {
 		return nil, err
 	}

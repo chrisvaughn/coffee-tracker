@@ -3,31 +3,25 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/pseidemann/finish"
 
 	"github.com/chrisvaughn/coffeetracker/pkg/coffeetracker"
+	"github.com/chrisvaughn/coffeetracker/pkg/configuration"
 )
 
 func main() {
 
+	cfg := configuration.GetConfiguration()
 	service, err := coffeetracker.NewService()
 	if err != nil {
 		log.Fatal(err)
 	}
 	service.SetupRoutes()
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-		log.Printf("Defaulting to port %s", port)
-	}
-
-	log.Printf("Listening on port %s", port)
-
+	log.Printf("Accepting requests on port: %s", cfg.Port)
 	srv := &http.Server{
-		Addr:    ":" + port,
+		Addr:    ":" + cfg.Port,
 		Handler: service.Router,
 	}
 

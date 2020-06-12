@@ -12,7 +12,10 @@ require (
 	github.com/go-chi/cors v1.1.1
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-cmp v0.4.1 // indirect
+	github.com/google/uuid v1.1.1
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pseidemann/finish v1.0.0
+	github.com/stretchr/testify v1.6.1
 	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/net v0.0.0-20200528225125-3c3fba18258b // indirect
 	golang.org/x/sys v0.0.0-20200523222454-059865788121 // indirect

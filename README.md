@@ -10,8 +10,8 @@ Environment Variables (you might want to use something like direnv)
 export GOOGLE_CLOUD_PROJECT=XXXXXXXXXXXXX
 
 # configuration parameters from you Auth0 app
-export AUTH0_AUD=XXXXXXXXXXXXXX
-export AUTH0_ISS=XXXXXXXXXXXXXX
+export OAUTH_AUDIENCE=XXXXXXXXXXXXXX
+export OAUTH_ISSUER=XXXXXXXXXXXXXX
 
 # react vars
 export REACT_APP_API_DOMAIN_PROD=<GAE PROJECT BASE URL>

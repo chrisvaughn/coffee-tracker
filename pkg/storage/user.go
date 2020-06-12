@@ -41,6 +41,12 @@ func (s *Storage) GetUserFromAuth0ID(context context.Context, auth0ID string) (*
 
 func (s *Storage) CreateUser(context context.Context, u *User) error {
 	newKey := datastore.IncompleteKey("User", nil)
-	_, err := s.client.Put(context, newKey, u)
+	key, err := s.client.Put(context, newKey, u)
+	u.Key = key
+
 	return err
+}
+
+func (s *Storage) DeleteUser(context context.Context, u *User) error {
+	return s.client.Delete(context, u.Key)
 }

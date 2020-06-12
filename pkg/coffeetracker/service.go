@@ -20,13 +20,13 @@ type Service struct {
 }
 
 func NewService() (*Service, error) {
-	storage, err := storage.NewStorage()
+	strg, err := storage.NewStorage()
 	if err != nil {
 		return nil, err
 	}
 	svc := Service{
 		Router:  chi.NewRouter(),
-		storage: storage,
+		storage: strg,
 	}
 	return &svc, nil
 }

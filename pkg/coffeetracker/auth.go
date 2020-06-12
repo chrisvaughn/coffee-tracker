@@ -7,9 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware"
+	"github.com/chrisvaughn/coffeetracker/pkg/configuration"
 	"github.com/chrisvaughn/coffeetracker/pkg/httputils"
 	"github.com/dgrijalva/jwt-go"
 )
@@ -49,17 +49,16 @@ func init() {
 }
 
 func AuthMiddleware() *jwtmiddleware.JWTMiddleware {
+	cfg := configuration.GetConfiguration()
 	return jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			// Verify 'aud' claim
-			aud := os.Getenv("AUTH0_AUD")
-			checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(aud, false)
+			checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(cfg.OauthAudience, false)
 			if !checkAud {
 				return token, errors.New("invalid audience")
 			}
 			// Verify 'iss' claim
-			iss := os.Getenv("AUTH0_ISS")
-			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(iss, false)
+			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(cfg.OauthIssuer, false)
 			if !checkIss {
 				return token, errors.New("invalid issuer")
 			}
@@ -81,7 +80,8 @@ func getPublicKey(token *jwt.Token) (*rsa.PublicKey, error) {
 		return publicKey, nil
 	}
 
-	resp, err := http.Get(os.Getenv("AUTH0_ISS") + ".well-known/jwks.json")
+	cfg := configuration.GetConfiguration()
+	resp, err := http.Get(cfg.OauthIssuer + ".well-known/jwks.json")
 	if err != nil {
 		return nil, err
 	}
