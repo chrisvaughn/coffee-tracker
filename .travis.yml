@@ -16,6 +16,8 @@ before_install:
   - gcloud components install cloud-datastore-emulator beta
 
 before_script:
+  # create an empty env.yaml for now
+  - touch env.yaml
   - gcloud beta emulators datastore start &
   - $(gcloud beta emulators datastore env-init)
 
