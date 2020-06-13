@@ -17,7 +17,7 @@ before_install:
 
 before_script:
   # create an empty env.yaml for now
-  - touch env.yaml
+  - cd $TRAVIS_BUILD_DIR && touch env.yaml
   - gcloud beta emulators datastore start &
   - $(gcloud beta emulators datastore env-init)
 
