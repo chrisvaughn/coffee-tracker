@@ -46,7 +46,7 @@ func TestCoffee(t *testing.T) {
 		Name:  "Test Coffee2",
 		Added: time.Now(),
 	}
-	s.CreateCoffee(ctx, c2, user1)
+	err = s.CreateCoffee(ctx, c2, user1)
 	assert.NoError(err)
 
 	coffees, err = s.GetCoffeesByUser(ctx, user1)
