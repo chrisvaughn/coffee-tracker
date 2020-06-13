@@ -13,7 +13,7 @@ before_install:
   - gcloud version
   - go get -u github.com/mattn/goveralls
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
-  - gcloud components install cloud-datastore-emulator
+  - gcloud components install cloud-datastore-emulator beta
 
 before_script:
   - gcloud beta emulators datastore start &
