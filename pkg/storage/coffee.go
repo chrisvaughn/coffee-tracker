@@ -29,6 +29,7 @@ func (s *Storage) GetCoffeesByUser(context context.Context, user *User) ([]*Coff
 
 func (s *Storage) CreateCoffee(context context.Context, c *Coffee, user *User) error {
 	newKey := datastore.IncompleteKey("Coffee", user.Key)
-	_, err := s.client.Put(context, newKey, c)
+	key, err := s.client.Put(context, newKey, c)
+	c.Key = key
 	return err
 }

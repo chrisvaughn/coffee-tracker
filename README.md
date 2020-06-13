@@ -1,6 +1,7 @@
 # coffee-tracker
 > Google App Engine app in Go 1.12 for tracking coffee with the purpose of knowing when to re-order
 
+[![Build Status](https://travis-ci.org/chrisvaughn/coffee-tracker.svg?branch=master)](https://travis-ci.org/chrisvaughn/coffee-tracker) [![Coverage Status](https://coveralls.io/repos/github/chrisvaughn/coffee-tracker/badge.svg?branch=master)](https://coveralls.io/github/chrisvaughn/coffee-tracker?branch=master)
 
 Environment Variables (you might want to use something like direnv)
 
