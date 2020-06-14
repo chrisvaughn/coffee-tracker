@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCoffee(t *testing.T) {
+func TestGetAllCoffees(t *testing.T) {
 	assert := assert.New(t)
 
 	s, err := NewStorage()
@@ -53,9 +53,47 @@ func TestCoffee(t *testing.T) {
 	assert.Len(coffees, 2)
 	assert.NoError(err)
 
+	c, err := s.GetCoffeeByID(ctx, coffees[0].ID, user1)
+	assert.NoError(err)
+	assert.Equal(c1.Name, c.Name)
+
 	// user2 should not have any coffees
 	coffees2, err := s.GetAllCoffeesForUser(ctx, user2)
 	assert.Nil(coffees2)
 	assert.NoError(err)
+}
 
+func TestCoffeeCRUD(t *testing.T) {
+	assert := assert.New(t)
+
+	s, err := NewStorage()
+	assert.NotNil(s)
+	assert.NoError(err)
+
+	ctx := context.Background()
+	auth0ID := "testing|" + uuid.New().String()
+	user, err := s.GetOrCreateUser(ctx, auth0ID)
+	assert.NotNil(user)
+	assert.NoError(err)
+
+	// create coffee
+	c1 := &Coffee{
+		Name:  "Test Coffee CRUD",
+		Added: time.Now(),
+	}
+	err = s.CreateCoffee(ctx, c1, user)
+	assert.NoError(err)
+
+	// update coffee
+	c1.Name = "Test Coffee Updated"
+	err = s.UpdateCoffee(ctx, c1)
+	assert.NoError(err)
+
+	// delete coffee
+	err = s.DeleteCoffee(ctx, c1)
+	assert.NoError(err)
+
+	c2, err := s.GetCoffeeByID(ctx, c1.ID, user)
+	assert.NoError(err)
+	assert.Nil(c2)
 }
