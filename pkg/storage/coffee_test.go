@@ -30,7 +30,7 @@ func TestCoffee(t *testing.T) {
 	assert.NoError(err)
 
 	// user1 should not have any coffees
-	coffees, err := s.GetCoffeesByUser(ctx, user1)
+	coffees, err := s.GetAllCoffeesForUser(ctx, user1)
 	assert.Nil(coffees)
 	assert.NoError(err)
 
@@ -49,12 +49,13 @@ func TestCoffee(t *testing.T) {
 	err = s.CreateCoffee(ctx, c2, user1)
 	assert.NoError(err)
 
-	coffees, err = s.GetCoffeesByUser(ctx, user1)
+	coffees, err = s.GetAllCoffeesForUser(ctx, user1)
 	assert.Len(coffees, 2)
 	assert.NoError(err)
 
 	// user2 should not have any coffees
-	coffees2, err := s.GetCoffeesByUser(ctx, user2)
+	coffees2, err := s.GetAllCoffeesForUser(ctx, user2)
 	assert.Nil(coffees2)
 	assert.NoError(err)
+
 }

@@ -18,6 +18,7 @@ func TestUser(t *testing.T) {
 	ctx := context.Background()
 
 	auth0ID := "testing|" + uuid.New().String()
+	t.Logf("UserID: %s\n", auth0ID)
 
 	// try to get user with ID, it should not exist
 	user, err := s.GetUserFromAuth0ID(ctx, auth0ID)

@@ -26,7 +26,7 @@ func (s *Service) getCoffee(w http.ResponseWriter, r *http.Request) {
 		httputils.ErrorResponse(w, "did not get user", 500)
 	}
 
-	coffee, err := s.storage.GetCoffee(ctx, coffeeID, user)
+	coffee, err := s.storage.GetCoffeeByID(ctx, coffeeID, user)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)
 	}

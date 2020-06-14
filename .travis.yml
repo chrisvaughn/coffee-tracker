@@ -17,7 +17,7 @@ before_install:
   - gcloud components install cloud-datastore-emulator beta
 
 before_script:
-  - gcloud beta emulators datastore start --no-store-on-disk &
+  - gcloud beta emulators datastore start --no-store-on-disk --consistency=1.0 &
   # sleep until this file exists, that should mean the emulator is running
   - while [ ! -f /home/travis/.config/gcloud/emulators/datastore/env.yaml ]; do sleep 1; done;
   - $(gcloud beta emulators datastore env-init)
