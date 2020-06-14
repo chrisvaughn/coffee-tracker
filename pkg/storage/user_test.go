@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -27,6 +28,7 @@ func TestUser(t *testing.T) {
 	// create the user
 	user = &User{
 		Auth0ID: auth0ID,
+		AddedDT: time.Now(),
 	}
 	err = s.CreateUser(ctx, user)
 	assert.NoError(err)

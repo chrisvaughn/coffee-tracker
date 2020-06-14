@@ -43,6 +43,7 @@ func (s *Storage) GetOrCreateUser(context context.Context, auth0ID string) (*Use
 	}
 	user = &User{
 		Auth0ID: auth0ID,
+		AddedDT: time.Now(),
 	}
 	err = s.CreateUser(context, user)
 	if err != nil {
