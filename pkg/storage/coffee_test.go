@@ -36,15 +36,18 @@ func TestGetAllCoffees(t *testing.T) {
 
 	// create multiple coffees
 	c1 := &Coffee{
-		Name:  "Test Coffee1",
-		Added: time.Now(),
+		Name:    "Test Coffee1",
+		AddedDT: time.Now(),
 	}
 	err = s.CreateCoffee(ctx, c1, user1)
 	assert.NoError(err)
+	assert.NotNil(c1.UpdatedDT)
+	assert.NotNil(c1.Key)
+	assert.NotZero(c1.ID)
 
 	c2 := &Coffee{
-		Name:  "Test Coffee2",
-		Added: time.Now(),
+		Name:    "Test Coffee2",
+		AddedDT: time.Now(),
 	}
 	err = s.CreateCoffee(ctx, c2, user1)
 	assert.NoError(err)
@@ -78,8 +81,8 @@ func TestCoffeeCRUD(t *testing.T) {
 
 	// create coffee
 	c1 := &Coffee{
-		Name:  "Test Coffee CRUD",
-		Added: time.Now(),
+		Name:    "Test Coffee CRUD",
+		AddedDT: time.Now(),
 	}
 	err = s.CreateCoffee(ctx, c1, user)
 	assert.NoError(err)
@@ -88,6 +91,12 @@ func TestCoffeeCRUD(t *testing.T) {
 	c1.Name = "Test Coffee Updated"
 	err = s.UpdateCoffee(ctx, c1)
 	assert.NoError(err)
+	updatedDT := c1.UpdatedDT
+
+	c1.Name = "Test Coffee Updated again"
+	err = s.UpdateCoffee(ctx, c1)
+	assert.NoError(err)
+	assert.Greater(c1.UpdatedDT.UnixNano(), updatedDT.UnixNano())
 
 	// delete coffee
 	err = s.DeleteCoffee(ctx, c1)

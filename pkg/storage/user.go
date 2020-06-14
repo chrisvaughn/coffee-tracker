@@ -2,13 +2,35 @@ package storage
 
 import (
 	"context"
+	"time"
 
 	"cloud.google.com/go/datastore"
 )
 
 type User struct {
-	Auth0ID string
-	Key     *datastore.Key `datastore:"__key__"`
+	Auth0ID   string         `json:"-"`
+	AddedDT   time.Time      `json:"added_dt"`
+	UpdatedDT time.Time      `json:"updated_dt"`
+	Key       *datastore.Key `datastore:"__key__" json:"-"`
+	ID        int64          `datastore:"-" json:"id"`
+}
+
+func (x *User) LoadKey(k *datastore.Key) error {
+	x.Key = k
+	x.ID = x.Key.ID
+	return nil
+}
+
+func (x *User) Load(ps []datastore.Property) error {
+	if err := datastore.LoadStruct(x, ps); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (x *User) Save() ([]datastore.Property, error) {
+	x.UpdatedDT = time.Now()
+	return datastore.SaveStruct(x)
 }
 
 func (s *Storage) GetOrCreateUser(context context.Context, auth0ID string) (*User, error) {
@@ -42,9 +64,12 @@ func (s *Storage) GetUserFromAuth0ID(context context.Context, auth0ID string) (*
 func (s *Storage) CreateUser(context context.Context, u *User) error {
 	newKey := datastore.IncompleteKey("User", nil)
 	key, err := s.client.Put(context, newKey, u)
+	if err != nil {
+		return err
+	}
 	u.Key = key
-
-	return err
+	u.ID = key.ID
+	return nil
 }
 
 func (s *Storage) DeleteUser(context context.Context, u *User) error {

@@ -31,6 +31,8 @@ func TestUser(t *testing.T) {
 	err = s.CreateUser(ctx, user)
 	assert.NoError(err)
 	assert.NotNil(user.Key)
+	assert.NotNil(user.UpdatedDT)
+	assert.NotZero(user.ID)
 
 	// try to get user with ID, it should not exist
 	fetchedUser, err := s.GetUserFromAuth0ID(ctx, auth0ID)

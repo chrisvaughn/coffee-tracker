@@ -9,11 +9,11 @@ import (
 )
 
 type Coffee struct {
-	Name    string         `json:"name"`
-	Added   time.Time      `json:"added_dt"`
-	Updated time.Time      `json:"updated_dt"`
-	Key     *datastore.Key `datastore:"__key__" json:"-"`
-	ID      int64          `datastore:"-" json:"id"`
+	Name      string         `json:"name"`
+	AddedDT   time.Time      `json:"added_dt"`
+	UpdatedDT time.Time      `json:"updated_dt"`
+	Key       *datastore.Key `datastore:"__key__" json:"-"`
+	ID        int64          `datastore:"-" json:"id"`
 }
 
 func (x *Coffee) LoadKey(k *datastore.Key) error {
@@ -30,6 +30,7 @@ func (x *Coffee) Load(ps []datastore.Property) error {
 }
 
 func (x *Coffee) Save() ([]datastore.Property, error) {
+	x.UpdatedDT = time.Now()
 	return datastore.SaveStruct(x)
 }
 
@@ -53,9 +54,12 @@ func (s *Storage) GetAllCoffeesForUser(context context.Context, user *User) ([]*
 func (s *Storage) CreateCoffee(context context.Context, c *Coffee, user *User) error {
 	newKey := datastore.IncompleteKey("Coffee", user.Key)
 	key, err := s.client.Put(context, newKey, c)
+	if err != nil {
+		return err
+	}
 	c.Key = key
 	c.ID = key.ID
-	return err
+	return nil
 }
 
 func (s *Storage) UpdateCoffee(context context.Context, c *Coffee) error {

@@ -2,7 +2,6 @@ package coffeetracker
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -41,9 +40,7 @@ func (s *Service) postCoffees(w http.ResponseWriter, r *http.Request) {
 		httputils.ErrorResponse(w, err.Error(), 400)
 	}
 
-	coffee.Added = time.Now()
-	fmt.Println(coffee.Name)
-
+	coffee.AddedDT = time.Now()
 	err = s.storage.CreateCoffee(ctx, &coffee, user)
 	if err != nil {
 		httputils.ErrorResponse(w, err.Error(), 500)

@@ -2,10 +2,8 @@ package coffeetracker
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi"
 
@@ -67,8 +65,6 @@ func (s *Service) putCoffee(w http.ResponseWriter, r *http.Request) {
 	if coffeeFromBody.Name != "" {
 		coffee.Name = coffeeFromBody.Name
 	}
-	coffee.Updated = time.Now()
-	fmt.Println(coffee.Name)
 
 	err = s.storage.UpdateCoffee(ctx, coffee)
 	if err != nil {
